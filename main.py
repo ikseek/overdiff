@@ -11,16 +11,16 @@ from json import loads
 def main():
     args = parse_args()
     if args.mode == 'overrides':
-        compare_overrides(args.left, args.right)
+        compare_overrides(*args.left, *args.right)
     else:
-        compare_configs(args.left, args.right)
+        compare_configs(*args.left, *args.right)
 
 
 def parse_args():
     parser = ArgumentParser("Overrides diff")
-    parser.add_argument('--mode', choices=('configs', 'overrides'))
-    parser.add_argument('left', nargs='?')
-    parser.add_argument('right', nargs='?')
+    parser.add_argument('--mode', required=True, choices=('configs', 'overrides'))
+    parser.add_argument('left', nargs=1)
+    parser.add_argument('right', nargs=1)
     return parser.parse_args()
 
 
@@ -73,10 +73,8 @@ def override_set(override_url):
 
 
 def config_override_set(config_url):
-    results = set()
-    for override_url in override_files_urls(config_url):
-        results |= override_set(override_url)
-    return results
+    urls = override_files_urls(config_url)
+    return set().union(*(override_set(u) for u in urls))
 
 
 if __name__ == '__main__':
